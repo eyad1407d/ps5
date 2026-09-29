@@ -159,32 +159,41 @@
 
   /* شريط أخضر صغير أسفل نافذة الكونسول */
   .console-bar {
-    position: absolute;
-    left: 8px; right: 8px; bottom: 7px;
-    height: 5px;
-    background: rgba(255,255,255,.07);
-    border-radius: 999px;
+    position: relative;
+    width: calc(100% - 18px);
+    height: 13px;
+    margin: 7px auto;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
     overflow: hidden;
-  }
-  .console-bar-fill {
-  width: 0%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    #e53935,
-    #ff5722,
-    #ff9800,
-    #ffc107,
-    #cddc39,
-    #4caf50,
-    #00c853
-  );
-  border-radius: inherit;
-  transition:
-    width .65s cubic-bezier(.22,1,.36,1),
-    background .45s ease,
-    box-shadow .45s ease;
-  box-shadow: 0 0 10px rgba(53,208,127,.6);
+    box-shadow:
+        inset 0 1px 3px rgba(0,0,0,0.7),
+        0 0 5px rgba(0,0,0,0.4);
+}
+
+.console-bar-fill {
+    width: 0%;
+    height: 100%;
+    border-radius: inherit;
+
+    background: linear-gradient(
+        90deg,
+        #e53935 0%,
+        #ff5722 16%,
+        #ff9800 32%,
+        #ffc107 48%,
+        #cddc39 64%,
+        #4caf50 82%,
+        #00c853 100%
+    );
+
+    transition:
+        width .45s ease,
+        background .35s ease;
+
+    box-shadow:
+        0 0 10px rgba(0,200,83,.55);
 }
 
   /* ===== الشريط السفلي (Loading) ===== */
@@ -206,13 +215,20 @@
     text-shadow: 0 0 12px rgba(244,200,66,.4);
   }
   .footer .bottom-progress {
-    height: 10px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.06);
-    border: 1px solid rgba(255,255,255,.12);
+    position: relative;
+    width: calc(100% - 18px);
+    height: 14px;
+    margin: 6px auto 8px;
+
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: inset 0 2px 6px rgba(0,0,0,.6);
-  }
+
+    box-shadow:
+        inset 0 1px 3px rgba(0,0,0,0.7),
+        0 0 5px rgba(0,0,0,0.4);
+}
   .console-bar,
 .bottom-progress {
   position: relative;
@@ -236,24 +252,27 @@
   letter-spacing: .5px;
 }
   .footer .bottom-progress-fill {
-  width: 0%;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(
-    90deg,
-    #e53935,
-    #ff5722,
-    #ff9800,
-    #ffc107,
-    #cddc39,
-    #4caf50,
-    #00c853
-  );
-  transition:
-    width .65s cubic-bezier(.22,1,.36,1),
-    background .45s ease,
-    box-shadow .45s ease;
-  box-shadow: 0 0 12px rgba(0,200,83,.5);
+    width: 0%;
+    height: 100%;
+    border-radius: inherit;
+
+    background: linear-gradient(
+        90deg,
+        #e53935 0%,
+        #ff5722 16%,
+        #ff9800 32%,
+        #ffc107 48%,
+        #cddc39 64%,
+        #4caf50 82%,
+        #00c853 100%
+    );
+
+    transition:
+        width .45s ease,
+        background .35s ease;
+
+    box-shadow:
+        0 0 12px rgba(0,200,83,.6);
 }
 
   /* ===== الشاشات الصغيرة ===== */
@@ -306,12 +325,8 @@
 
     <!-- اللوح الأيمن: الكونسول -->
     <div class="panel right-panel">
-      <div class="console-out" id="consoleOut"></div>
-      <div class="console-bar">
-  <div class="console-bar-fill" id="consoleBarFill"></div>
-  <div class="progress-overlay" id="consoleProgressText">0%</div>
+    <div id="console"></div>
 </div>
-    </div>
   </div>
 
   <!-- الشريط السفلي -->
@@ -449,7 +464,6 @@ window.writeLog('Starting Exploit', 'log');
 </script>
 
 <!-- سكربتاتك الأصلية -->
-<div id="console"></div>
 <script src="./src/firmware.js"></script>
 <script>
 function updateFirmwareDisplay() {
