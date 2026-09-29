@@ -28,7 +28,7 @@
   #bg::after {
     content: "";
     position: absolute; inset: 0;
-    background: rgba(0,0,0,.30);
+    background: rgba(0,0,0,.15);
   }
 
   /* ===== الإطار الرئيسي ===== */
@@ -40,9 +40,9 @@
     margin: 6vh auto;
     padding: 16px 22px 18px;
     border-radius: 18px;
-    background: rgba(10,10,12,.78);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(10,10,12,.28);
+backdrop-filter: blur(3px);
+-webkit-backdrop-filter: blur(3px);
     border: 1px solid rgba(140,100,40,.45);
     box-shadow:
       0 0 80px rgba(0,0,0,.85),
@@ -89,7 +89,9 @@
       0 0 22px rgba(193,18,31,.45),
       0 0 60px rgba(193,18,31,.15),
       inset 0 0 34px rgba(193,18,31,.09);
-    background: rgba(8,8,10,.78);
+    background: rgba(8,8,10,.22);
+backdrop-filter: blur(2px);
+-webkit-backdrop-filter: blur(2px);
     padding: 12px;
     min-height: 0;
   }
@@ -107,7 +109,13 @@
     border: 1px solid rgba(193,18,31,.55);
     border-radius: 10px;
     padding: 8px 10px 9px;
-    background: linear-gradient(180deg, rgba(25,12,12,.6), rgba(10,6,6,.6));
+    background: linear-gradient(
+    180deg,
+    rgba(25,12,12,.20),
+    rgba(10,6,6,.16)
+);
+backdrop-filter: blur(2px);
+-webkit-backdrop-filter: blur(2px);
     text-align: center;
     font-size: clamp(10px, .92vw, 14px);
     flex: 1 1 auto;
@@ -143,29 +151,50 @@
     overflow: hidden;
 }
 
+/* ===== الكونسول: كامل مساحة اللوح الأيمن ===== */
+
 .right-panel #console {
-  height: 220px;
-  max-height: 220px;
-  overflow: hidden;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
 
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+    overflow: hidden;
 
-  padding: 6px 8px;
-  box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 
-  font-size: 11px;
-  line-height: 18px;
+    padding: 10px 12px;
+
+    box-sizing: border-box;
+
+    font-size: 12px;
+    line-height: 1.4;
+
+    background: rgba(0,0,0,.12);
+    border-radius: 8px;
 }
 
+/* كل سطر */
 .right-panel #console > div {
-  flex: 0 0 18px;
-  height: 18px;
+    flex: 0 0 auto;
 
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    min-height: 22px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 4px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* مسافة إضافية بين الأسطر */
+.right-panel #console > div + div {
+    margin-top: 8px;
 }
 
   .console-out {
@@ -227,7 +256,9 @@
     flex: 0 0 auto;
     border: 1px solid rgba(180,140,40,.45);
     border-radius: 12px;
-    background: rgba(15,15,18,.72);
+    background: rgba(15,15,18,.22);
+backdrop-filter: blur(2px);
+-webkit-backdrop-filter: blur(2px);
     padding: 8px 14px 12px;
     box-shadow: inset 0 0 20px rgba(0,0,0,.5);
   }
