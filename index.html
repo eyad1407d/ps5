@@ -5,14 +5,33 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <title>PS5-Relapse</title>
   <style>
-    html, body {
-      background: #060606;
-      color: #fff;
-    }
+    body {
+            font-family: monospace;
+            background: #000;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        #bg{
+            position:fixed;
+            left:0;
+            top:0;
+            width:100%;
+            height:100%;
+            background-image:url("pic0.png");
+            background-repeat:no-repeat;
+            background-position:center center;
+            background-size:cover;
+            z-index:0;
+        }
+        #output div {
+            white-space: normal;
+        }
   </style>
 </head>
 <body>
-  <div id="console"></div>
+  <div id="bg"></div>
   <script src="./src/firmware.js"></script>
   <script src="./src/main.js"></script>
   <script src="./src/rop.js"></script>
