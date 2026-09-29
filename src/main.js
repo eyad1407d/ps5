@@ -269,8 +269,8 @@ async function main(userlandRW) {
   if (result.payloads) {
     log("kernel exploit complete", "info");
     log("elfldr is listening on port 9021", "info");
+    log("Payload Manager Wate 5 Second", "info");
       try {
-        log("Payload Manager Wate 5 Second", "info");
         await new Promise((resolve) => setTimeout(resolve, 5000));
         const { loadOptionalPayloads } = await import("./kexp.js");
         await loadOptionalPayloads(p, chain, (message) => log(message, "info"));
