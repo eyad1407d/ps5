@@ -270,6 +270,8 @@ async function main(userlandRW) {
     log("kernel exploit complete", "info");
     log("elfldr is listening on port 9021", "info");
       try {
+        await new Promise((resolve) => setTimeout(resolve, 20000));
+        log("Wate 20 Second", "info");
         const { loadOptionalPayloads } = await import("./kexp.js");
         await loadOptionalPayloads(p, chain, (message) => log(message, "info"));
       } catch (error) {
