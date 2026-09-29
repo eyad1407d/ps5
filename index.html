@@ -167,13 +167,25 @@
     overflow: hidden;
   }
   .console-bar-fill {
-    width: 0%;
-    height: 100%;
-    background: linear-gradient(90deg, #35d07f, #9be15d);
-    border-radius: inherit;
-    transition: width .3s ease;
-    box-shadow: 0 0 10px rgba(53,208,127,.6);
-  }
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    #e53935,
+    #ff5722,
+    #ff9800,
+    #ffc107,
+    #cddc39,
+    #4caf50,
+    #00c853
+  );
+  border-radius: inherit;
+  transition:
+    width .65s cubic-bezier(.22,1,.36,1),
+    background .45s ease,
+    box-shadow .45s ease;
+  box-shadow: 0 0 10px rgba(53,208,127,.6);
+}
 
   /* ===== الشريط السفلي (Loading) ===== */
   .footer {
@@ -201,14 +213,48 @@
     overflow: hidden;
     box-shadow: inset 0 2px 6px rgba(0,0,0,.6);
   }
+  .console-bar,
+.bottom-progress {
+  position: relative;
+}
+
+.progress-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+  color: #fff;
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 1;
+  text-shadow:
+    0 1px 2px #000,
+    0 0 5px #000;
+  letter-spacing: .5px;
+}
   .footer .bottom-progress-fill {
-    width: 0%;
-    height: 100%;
-    border-radius: inherit;
-    background: linear-gradient(90deg, #c1121f, #ff5722, #ffc107, #cddc39, #00c853);
-    transition: width .35s ease;
-    box-shadow: 0 0 12px rgba(0,200,83,.5);
-  }
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    #e53935,
+    #ff5722,
+    #ff9800,
+    #ffc107,
+    #cddc39,
+    #4caf50,
+    #00c853
+  );
+  transition:
+    width .65s cubic-bezier(.22,1,.36,1),
+    background .45s ease,
+    box-shadow .45s ease;
+  box-shadow: 0 0 12px rgba(0,200,83,.5);
+}
 
   /* ===== الشاشات الصغيرة ===== */
   @media (max-width: 720px){
@@ -239,8 +285,15 @@
   <div class="panels">
     <!-- اللوح الأيسر: بطاقات الحالة -->
     <div class="panel left-panel">
-      <div class="card"><div class="label">FW</div><div class="value">------</div></div>
-      <div class="card"><div class="label">IPPORT</div><div class="value">------</div></div>
+<div class="card">
+  <div class="label">FW</div>
+  <div class="value" id="firmwareValue">------</div>
+</div>
+
+      <div class="card">
+  <div class="label">IP</div>
+  <div class="value" id="ipValue">------</div>
+</div>
       <div class="card alert">
         <div class="label">PERCENT</div>
         <div class="value" id="percentText">Remaining: --:-- (0%)</div>
@@ -254,14 +307,20 @@
     <!-- اللوح الأيمن: الكونسول -->
     <div class="panel right-panel">
       <div class="console-out" id="consoleOut"></div>
-      <div class="console-bar"><div class="console-bar-fill" id="consoleBarFill"></div></div>
+      <div class="console-bar">
+  <div class="console-bar-fill" id="consoleBarFill"></div>
+  <div class="progress-overlay" id="consoleProgressText">0%</div>
+</div>
     </div>
   </div>
 
   <!-- الشريط السفلي -->
   <div class="footer">
     <div class="loading-text" id="loadingText">Loading...</div>
-    <div class="bottom-progress"><div class="bottom-progress-fill" id="bottomBarFill"></div></div>
+    <div class="bottom-progress">
+  <div class="bottom-progress-fill" id="bottomBarFill"></div>
+  <div class="progress-overlay" id="bottomProgressText">0%</div>
+</div>
   </div>
 </div>
 
@@ -269,6 +328,19 @@
      دوال الشريط + writeLog  —  قبل باقي السكربتات
      ============================================================ -->
 <script>
+  function showCurrentIP() {
+    const ipElement = document.getElementById("ipValue");
+    if (!ipElement) return;
+
+    if (typeof get_current_ip !== "function") {
+        ipElement.textContent = "------";
+        return;
+    }
+
+    const ip = get_current_ip();
+
+    ipElement.textContent = ip || "No Network";
+}
 /* ============ لوحة الألوان (7 ألوان) ============ */
 const PALETTE = ['#e53935','#ff5722','#ff9800','#ffc107','#cddc39','#4caf50','#00c853'];
 
@@ -288,29 +360,69 @@ function colorAt(percent){
 
 /* ============ الدالة الأساسية ============ */
 window.updateProgress = function(percent){
-  percent = Math.max(0, Math.min(100, Number(percent) || 0));
+  percent = Number(percent);
+
+  if (!Number.isFinite(percent))
+    return;
+
+  percent = Math.max(0, Math.min(100, percent));
+
   const p = Math.round(percent);
+  const color = colorAt(p);
 
-  // 1) شريط أسفل الكونسول
+  // ===== الأشرطة =====
   const cbar = document.getElementById('consoleBarFill');
-  if (cbar) cbar.style.width = p + '%';
-
-  // 2) الشريط السفلي الكبير
   const bbar = document.getElementById('bottomBarFill');
-  if (bbar) bbar.style.width = p + '%';
 
-  // 3) بطاقة PERCENT — نحدّث فقط الجزء بين قوسين
-  const pct = document.getElementById('percentText');
-  if (pct){
-    const m = pct.textContent.match(/Remaining:\s*[^)]+/);
-    pct.textContent = `${m ? m[0] : 'Remaining: --:--'} (${p}%)`;
+  if (cbar) {
+    cbar.style.width = p + '%';
+    cbar.style.background =
+      `linear-gradient(90deg,
+        ${color},
+        ${colorAt(Math.min(100, p + 12))})`;
+    cbar.style.boxShadow = `0 0 12px ${color}`;
   }
 
-  // 4) بطاقة JBSTATUS
+  if (bbar) {
+    bbar.style.width = p + '%';
+    bbar.style.background =
+      `linear-gradient(90deg,
+        ${color},
+        ${colorAt(Math.min(100, p + 12))})`;
+    bbar.style.boxShadow = `0 0 16px ${color}`;
+  }
+
+  // ===== النسبة داخل الشريط =====
+  const consoleText =
+    document.getElementById('consoleProgressText');
+
+  const bottomText =
+    document.getElementById('bottomProgressText');
+
+  if (consoleText)
+    consoleText.textContent = p + '%';
+
+  if (bottomText)
+    bottomText.textContent = p + '%';
+
+  // ===== بطاقة PERCENT =====
+  const pct = document.getElementById('percentText');
+
+  if (pct){
+    const m = pct.textContent.match(/Remaining:\s*[^)]+/);
+
+    pct.textContent =
+      `${m ? m[0] : 'Remaining: --:--'} (${p}%)`;
+  }
+
+  // ===== بطاقة JBSTATUS =====
   const jb = document.getElementById('jbStatus');
+
   if (jb){
     const m = jb.textContent.match(/^[^(]+/);
-    jb.textContent = `${m ? m[0].trim() : 'P2JB Injection'} (${p}%)`;
+
+    jb.textContent =
+      `${m ? m[0].trim() : 'P2JB Injection'} (${p}%)`;
   }
 };
 
@@ -339,6 +451,21 @@ window.writeLog('Starting Exploit', 'log');
 <!-- سكربتاتك الأصلية -->
 <div id="console"></div>
 <script src="./src/firmware.js"></script>
+<script>
+function updateFirmwareDisplay() {
+  const fw = document.getElementById("firmwareValue");
+
+  if (!fw)
+    return;
+
+  fw.textContent =
+    window.fw_str && window.fw_str.length
+      ? window.fw_str
+      : "------";
+}
+
+updateFirmwareDisplay();
+</script>
 <script src="./src/main.js"></script>
 <script src="./src/rop.js"></script>
 <script src="./src/utils/syscalls.js"></script>
