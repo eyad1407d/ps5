@@ -140,7 +140,33 @@
     min-width: 0;
     position: relative;
     padding: 14px 16px 22px;
-  }
+    overflow: hidden;
+}
+
+.right-panel #console {
+  height: 220px;
+  max-height: 220px;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  padding: 6px 8px;
+  box-sizing: border-box;
+
+  font-size: 11px;
+  line-height: 18px;
+}
+
+.right-panel #console > div {
+  flex: 0 0 18px;
+  height: 18px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
   .console-out {
     flex: 1;
