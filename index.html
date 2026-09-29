@@ -1,22 +1,346 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <title>PS5-Relapse</title>
-  <style>
-    html, body {
-      background: #060606;
-      color: #fff;
-    }
-  </style>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>PS5 Y2JB Autoloader</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    font-family: monospace;
+    background: #000;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ===== الخلفية ===== */
+  #bg {
+    position: fixed; inset: 0;
+    background-image: url("pic0.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    z-index: 0;
+  }
+  #bg::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,.30);
+  }
+
+  /* ===== الإطار الرئيسي ===== */
+  #app {
+    position: relative;
+    z-index: 1;
+    width: 90vw;
+    height: 88vh;
+    margin: 6vh auto;
+    padding: 16px 22px 18px;
+    border-radius: 18px;
+    background: rgba(10,10,12,.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(140,100,40,.45);
+    box-shadow:
+      0 0 80px rgba(0,0,0,.85),
+      0 0 34px rgba(180,120,30,.10),
+      inset 0 0 40px rgba(0,0,0,.5);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* ===== الترويسة ===== */
+  .header {
+    text-align: center;
+    color: #f4c842;
+    font-size: clamp(11px, 1.05vw, 15px);
+    line-height: 1.55;
+    letter-spacing: .6px;
+    text-shadow: 0 0 14px rgba(244,200,66,.45);
+    border-bottom: 1px solid rgba(180,140,40,.35);
+    padding-bottom: 8px;
+    flex: 0 0 auto;
+  }
+  .header .line {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+  .header .sep { color: rgba(180,150,60,.75); }
+  .header .bolt { color: #ffe066; }
+
+  /* ===== الألواح ===== */
+  .panels {
+    flex: 1;
+    display: flex;
+    gap: 14px;
+    min-height: 0;
+  }
+
+  .panel {
+    border-radius: 14px;
+    border: 2px solid #c1121f;
+    box-shadow:
+      0 0 22px rgba(193,18,31,.45),
+      0 0 60px rgba(193,18,31,.15),
+      inset 0 0 34px rgba(193,18,31,.09);
+    background: rgba(8,8,10,.78);
+    padding: 12px;
+    min-height: 0;
+  }
+
+  /* ----- اللوح الأيسر: بطاقات الحالة ----- */
+  .left-panel {
+    flex: 0 0 24%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: auto;
+  }
+
+  .card {
+    border: 1px solid rgba(193,18,31,.55);
+    border-radius: 10px;
+    padding: 8px 10px 9px;
+    background: linear-gradient(180deg, rgba(25,12,12,.6), rgba(10,6,6,.6));
+    text-align: center;
+    font-size: clamp(10px, .92vw, 14px);
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .card .label {
+    color: #f4c842;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    font-size: clamp(9px, .85vw, 13px);
+  }
+  .card .value {
+    color: #eaeaea;
+    margin-top: 3px;
+    letter-spacing: .5px;
+  }
+  .card.alert .value {
+    color: #ff3b3b;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(255,60,60,.5);
+  }
+
+  /* ----- اللوح الأيمن: الكونسول ----- */
+  .right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    position: relative;
+    padding: 14px 16px 22px;
+  }
+
+  .console-out {
+    flex: 1;
+    overflow: auto;
+    font-size: clamp(10px, .92vw, 13.5px);
+    line-height: 1.75;
+    color: #dcdcdc;
+    white-space: pre-wrap;
+    word-break: break-word;
+    letter-spacing: .3px;
+  }
+  .console-out .green { color: #35d07f; }
+  .console-out .err   { color: #ff5a5a; }
+  .console-out .ok    { color: #9be15d; }
+  .console-out .dim   { color: #9a9a9a; }
+
+  /* شريط أخضر صغير أسفل نافذة الكونسول */
+  .console-bar {
+    position: absolute;
+    left: 8px; right: 8px; bottom: 7px;
+    height: 5px;
+    background: rgba(255,255,255,.07);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .console-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #35d07f, #9be15d);
+    border-radius: inherit;
+    transition: width .3s ease;
+    box-shadow: 0 0 10px rgba(53,208,127,.6);
+  }
+
+  /* ===== الشريط السفلي (Loading) ===== */
+  .footer {
+    flex: 0 0 auto;
+    border: 1px solid rgba(180,140,40,.45);
+    border-radius: 12px;
+    background: rgba(15,15,18,.72);
+    padding: 8px 14px 12px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,.5);
+  }
+  .footer .loading-text {
+    text-align: center;
+    color: #f4c842;
+    font-size: clamp(12px, 1.05vw, 15px);
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    text-shadow: 0 0 12px rgba(244,200,66,.4);
+  }
+  .footer .bottom-progress {
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+    overflow: hidden;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,.6);
+  }
+  .footer .bottom-progress-fill {
+    width: 0%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #c1121f, #ff5722, #ffc107, #cddc39, #00c853);
+    transition: width .35s ease;
+    box-shadow: 0 0 12px rgba(0,200,83,.5);
+  }
+
+  /* ===== الشاشات الصغيرة ===== */
+  @media (max-width: 720px){
+    #app { width: 94vw; height: 92vh; margin: 4vh auto; padding: 12px; }
+    .panels { flex-direction: column; }
+    .left-panel { flex: 0 0 auto; flex-direction: row; flex-wrap: wrap; }
+    .card { flex: 1 1 30%; min-width: 100px; }
+  }
+</style>
 </head>
 <body>
-  <div id="console"></div>
-  <script src="./src/firmware.js"></script>
-  <script src="./src/main.js"></script>
-  <script src="./src/rop.js"></script>
-  <script src="./src/utils/syscalls.js"></script>
-  <script type="module" src="./src/site.js"></script>
+<div id="bg"></div>
+
+<div id="app">
+  <!-- الترويسة -->
+  <div class="header">
+    <div class="line">
+      <span class="bolt">⚡</span> Gezine <span class="sep">|</span>
+      Matem6 <span class="sep">|</span>
+      EYAD <span class="bolt">⚡</span>
+    </div>
+    <div class="line">
+      <span class="bolt">⚡</span> PS5 Y2JB Autoloader <span class="bolt">⚡</span>
+    </div>
+  </div>
+
+  <!-- الألواح -->
+  <div class="panels">
+    <!-- اللوح الأيسر: بطاقات الحالة -->
+    <div class="panel left-panel">
+      <div class="card"><div class="label">FW</div><div class="value">------</div></div>
+      <div class="card"><div class="label">IPPORT</div><div class="value">------</div></div>
+      <div class="card alert">
+        <div class="label">PERCENT</div>
+        <div class="value" id="percentText">Remaining: --:-- (0%)</div>
+      </div>
+      <div class="card alert">
+        <div class="label">JBSTATUS</div>
+        <div class="value" id="jbStatus">P2JB Injection (0%)</div>
+      </div>
+    </div>
+
+    <!-- اللوح الأيمن: الكونسول -->
+    <div class="panel right-panel">
+      <div class="console-out" id="consoleOut"></div>
+      <div class="console-bar"><div class="console-bar-fill" id="consoleBarFill"></div></div>
+    </div>
+  </div>
+
+  <!-- الشريط السفلي -->
+  <div class="footer">
+    <div class="loading-text" id="loadingText">Loading...</div>
+    <div class="bottom-progress"><div class="bottom-progress-fill" id="bottomBarFill"></div></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     دوال الشريط + writeLog  —  قبل باقي السكربتات
+     ============================================================ -->
+<script>
+/* ============ لوحة الألوان (7 ألوان) ============ */
+const PALETTE = ['#e53935','#ff5722','#ff9800','#ffc107','#cddc39','#4caf50','#00c853'];
+
+function hexToRgb(h){
+  h = h.replace('#','');
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+}
+function colorAt(percent){
+  const t = Math.max(0, Math.min(1, percent/100)) * (PALETTE.length - 1);
+  const i = Math.min(PALETTE.length - 2, Math.floor(t));
+  const f = t - i;
+  const a = hexToRgb(PALETTE[i]);
+  const b = hexToRgb(PALETTE[i+1]);
+  const c = a.map((v,k) => Math.round(v + (b[k]-v) * f));
+  return '#' + c.map(v => v.toString(16).padStart(2,'0')).join('');
+}
+
+/* ============ الدالة الأساسية ============ */
+window.updateProgress = function(percent){
+  percent = Math.max(0, Math.min(100, Number(percent) || 0));
+  const p = Math.round(percent);
+
+  // 1) شريط أسفل الكونسول
+  const cbar = document.getElementById('consoleBarFill');
+  if (cbar) cbar.style.width = p + '%';
+
+  // 2) الشريط السفلي الكبير
+  const bbar = document.getElementById('bottomBarFill');
+  if (bbar) bbar.style.width = p + '%';
+
+  // 3) بطاقة PERCENT — نحدّث فقط الجزء بين قوسين
+  const pct = document.getElementById('percentText');
+  if (pct){
+    const m = pct.textContent.match(/Remaining:\s*[^)]+/);
+    pct.textContent = `${m ? m[0] : 'Remaining: --:--'} (${p}%)`;
+  }
+
+  // 4) بطاقة JBSTATUS
+  const jb = document.getElementById('jbStatus');
+  if (jb){
+    const m = jb.textContent.match(/^[^(]+/);
+    jb.textContent = `${m ? m[0].trim() : 'P2JB Injection'} (${p}%)`;
+  }
+};
+
+/* ============ writeLog — بالوسيط الثالث ============ */
+window.writeLog = function(message, type = 'log', progress = null){
+  const out = document.getElementById('consoleOut');
+  if (out){
+    const line = document.createElement('div');
+    line.textContent = message;
+    if (type === 'error')        line.classList.add('err');
+    else if (type === 'success') line.classList.add('green');
+    else if (type === 'dim')     line.classList.add('dim');
+    out.appendChild(line);
+    out.scrollTop = out.scrollHeight;
+  }
+  if (progress !== null) window.updateProgress(progress);
+};
+
+/* ============ تهيئة أولية — صفوف الصورة ============ */
+window.updateProgress(0);
+window.writeLog('PS5 Y2JB Autoloader Edit By EYAD', 'log');
+window.writeLog('Running Y2JB Exploit...', 'log');
+window.writeLog('Starting Exploit', 'log');
+</script>
+
+<!-- سكربتاتك الأصلية -->
+<script src="./src/firmware.js"></script>
+<script src="./src/main.js"></script>
+<script src="./src/rop.js"></script>
+<script src="./src/utils/syscalls.js"></script>
+<script type="module" src="./src/site.js"></script>
 </body>
 </html>
