@@ -23,10 +23,19 @@ function writeLog(message, type = "log", progress = null, replace = false) {
   if (type === "info" || type === "success") marker = "+";
 
   line.textContent = `[${marker}] ${message}`;
+
+  // الاحتفاظ بآخر 11 سطر فقط
+  while (output.children.length > 11) {
+    output.removeChild(output.firstElementChild);
+  }
+
+  // إبقاء العرض داخل الصندوق وآخر سطر ظاهر
   output.scrollTop = output.scrollHeight;
 
-  if (progress !== null)
+  // تحديث شريط التقدم السفلي إذا وصلت نسبة
+  if (progress !== null && typeof window.updateProgress === "function") {
     window.updateProgress(progress);
+  }
 }
 
 function writeEvent(name, detail, type, progress = null) {
