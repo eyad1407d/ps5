@@ -88,7 +88,7 @@ function watchR2(onPress) {
     onPress();
   }
 
-  log("press R2 to load kstuff, shadowmountplus and etaHEN", "info");
+  log("Press R2 to load Payload Manager 0.5.2", "info");
   window.addEventListener("keydown", onKey, true);
 }
 
