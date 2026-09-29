@@ -76,8 +76,8 @@ async function findWorkerReturnSlot(p, stack, libKernelBase) {
   throw new Error(`worker wait return fingerprint count ${lastCount}, expected 1`);
 }
 
-function log(message, type = "log") {
-  window.writeLog(message, type);
+function log(message, type = "log", progress = null) {
+  window.writeLog(message, type, progress);
 }
 
 const ROP_WAIT_MS = 20000;
@@ -273,7 +273,12 @@ async function main(userlandRW) {
       try {
         await new Promise((resolve) => setTimeout(resolve, 5000));
         const { loadOptionalPayloads } = await import("./kexp.js");
-        await loadOptionalPayloads(p, chain, (message) => log(message, "info"));
+        await loadOptionalPayloads(
+  p,
+  chain,
+  (message, type = "info", progress = null) =>
+    log(message, type, progress)
+);
       } catch (error) {
         log(error instanceof Error ? error.message : String(error), "error");
       }

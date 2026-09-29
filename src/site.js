@@ -3,22 +3,38 @@ import { installWindowP } from "./utils/mem.js";
 
 const output = document.getElementById("console");
 
-function writeLog(message, type = "log", replace = false) {
+function writeLog(message, type = "log", progress = null, replace = false) {
+  // توافق مع الاستعمال القديم:
+  // writeLog(message, type, true/false)
+  if (typeof progress === "boolean") {
+    replace = progress;
+    progress = null;
+  }
+
   let line = replace ? output.lastElementChild : null;
+
   if (!line) {
     line = document.createElement("div");
     output.appendChild(line);
   }
+
   let marker = "*";
   if (type === "error") marker = "-";
   if (type === "info" || type === "success") marker = "+";
+
   line.textContent = `[${marker}] ${message}`;
   output.scrollTop = output.scrollHeight;
+
+  if (progress !== null)
+    window.updateProgress(progress);
 }
 
-function writeEvent(name, detail, type) {
-  writeLog(detail == null || detail === "" ? name : `${name}: ${detail}`,
-    type || (name === "Failed" ? "error" : "log"));
+function writeEvent(name, detail, type, progress = null) {
+  writeLog(
+    detail == null || detail === "" ? name : `${name}: ${detail}`,
+    type || (name === "Failed" ? "error" : "log"),
+    progress
+  );
 }
 
 window.writeLog = writeLog;

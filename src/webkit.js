@@ -129,9 +129,14 @@ function encodedHeaderNumber() {
   return number[0];
 }
 
-function emit(tag, detail, type) {
+function emit(tag, detail, type, progress = null) {
   if (onEvent !== null)
-    onEvent(tag, detail === undefined ? "" : String(detail), type);
+    onEvent(
+      tag,
+      detail === undefined ? "" : String(detail),
+      type,
+      progress
+    );
 }
 
 function isOurCorruptedView(candidate, originalVector) {
