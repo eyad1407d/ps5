@@ -267,7 +267,7 @@ async function main(userlandRW) {
     throw new Error("kernel exploit did not finish");
 
   if (result.payloads) {
-    log("kernel exploit complete", "info");
+    log("kernel exploit complete", "info", 100);
     log("elfldr is listening on port 9021", "info");
     log("Payload Manager Wate 5 Second", "info");
       try {
