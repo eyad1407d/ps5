@@ -193,6 +193,24 @@ async function prepareRop(p) {
     chain.push(libSceLibcInternalBase.add32(OFFSET_lc_setjmp));
   }
 
+  let marker = "*";
+
+  if (type === "error") {
+    marker = "-";
+    line.style.color = "#ff5a5a";
+  }
+  else if (type === "info") {
+    marker = "+";
+    line.style.color = "#dcdcdc";
+  }
+  else if (type === "success") {
+    marker = "+";
+    line.style.color = "#35d07f";
+  }
+  else {
+    line.style.color = "#dcdcdc";
+  }
+
   async function launchChain(chain) {
     const originalStackPointer = p.read8(stackPointerSlot);
     chain.push_write8(originalContext, originalReturnAddress);
@@ -269,7 +287,7 @@ async function main(userlandRW) {
   if (result.payloads) {
     log("kernel exploit complete", "info", 100);
     log("elfldr is listening on port 9021", "info");
-    log("Payload Manager Wate 5 Second", "info");
+    log("Payload Manager Wait 5 Seconds.", "info");
       try {
         await new Promise((resolve) => setTimeout(resolve, 5000));
         const { loadOptionalPayloads } = await import("./kexp.js");
@@ -284,7 +302,22 @@ async function main(userlandRW) {
       }
 
   } else {
-    log("kernel chain complete: root and sandbox escape are active", "info");
+    log("Your Console Is Already Jailbroken!", "success", 100);
+
+    const jbStatus = document.getElementById("jbStatus");
+    if (jbStatus) {
+        jbStatus.textContent = "Already Jailbroken";
+    }
+
+    log("Re Run Payload Manager Wait 5 Seconds.", "info");
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+        const { loadOptionalPayloads } = await import("./kexp.js");
+        await loadOptionalPayloads(
+  p,
+  chain,
+  (message, type = "info", progress = null) =>
+    log(message, type, progress)
+);
   }
 }
 
