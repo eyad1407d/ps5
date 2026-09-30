@@ -4,13 +4,24 @@ import { installWindowP } from "./utils/mem.js";
 const output = document.getElementById("console");
 
 function writeLog(message, type = "log", progress = null, replace = false) {
-  // توافق مع الاستعمال القديم:
-  // writeLog(message, type, true/false)
+  // توافق مع الاستعمال القديم
   if (typeof progress === "boolean") {
     replace = progress;
     progress = null;
   }
 
+  const loadingText = document.getElementById("loadingText");
+
+  // ==========================================
+  // تحديث النص السفلي بنفس آخر سطر في الكونسول
+  // ==========================================
+  if (loadingText) {
+    loadingText.textContent = String(message);
+  }
+
+  // ==========================================
+  // إنشاء سطر الكونسول
+  // ==========================================
   let line = replace ? output.lastElementChild : null;
 
   if (!line) {
@@ -18,22 +29,49 @@ function writeLog(message, type = "log", progress = null, replace = false) {
     output.appendChild(line);
   }
 
+  // ==========================================
+  // لون السطر
+  // ==========================================
   let marker = "*";
-  if (type === "error") marker = "-";
-  if (type === "info" || type === "success") marker = "+";
 
+  if (type === "error") {
+    marker = "-";
+    line.style.color = "#ff5a5a";
+  }
+  else if (type === "info") {
+    marker = "+";
+    line.style.color = "#dcdcdc";
+  }
+  else if (type === "success") {
+    marker = "+";
+    line.style.color = "#35d07f";
+  }
+  else {
+    line.style.color = "#dcdcdc";
+  }
+
+  // ==========================================
+  // كتابة السطر
+  // ==========================================
   line.textContent = `[${marker}] ${message}`;
 
-  // الاحتفاظ بآخر 11 سطر فقط
-  while (output.children.length > 11) {
+  // ==========================================
+  // الاحتفاظ بآخر 10 أسطر فقط
+  // ==========================================
+  while (output.children.length > 10) {
     output.removeChild(output.firstElementChild);
   }
 
-  // إبقاء العرض داخل الصندوق وآخر سطر ظاهر
+  // النزول إلى آخر سطر
   output.scrollTop = output.scrollHeight;
 
-  // تحديث شريط التقدم السفلي إذا وصلت نسبة
-  if (progress !== null && typeof window.updateProgress === "function") {
+  // ==========================================
+  // تحديث شريط التقدم
+  // ==========================================
+  if (
+    progress !== null &&
+    typeof window.updateProgress === "function"
+  ) {
     window.updateProgress(progress);
   }
 }
