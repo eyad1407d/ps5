@@ -263,18 +263,10 @@ async function main(userlandRW) {
   const { p, chain } = await prepareRop(userlandRW);
   const { runKernelExploit } = await import("./relapse_exploit.js");
   const result = await runKernelExploit(p, chain, log);
+  if (!result || !result.done)
+    throw new Error("kernel exploit did not finish");
 
-if (!result || !result.done)
-  throw new Error("kernel exploit did not finish");
-
-if (result.jailbreak === true) {
-  log("JAILBREAK STATUS: ACTIVE", "success", 100);
-} else {
-  log("JAILBREAK STATUS: NOT ACTIVE", "error");
-  return;
-}
-
-if (result.payloads) {
+  if (result.payloads) {
     log("kernel exploit complete", "info", 100);
     log("elfldr is listening on port 9021", "info");
     log("Payload Manager Wate 5 Second", "info");
