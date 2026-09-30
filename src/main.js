@@ -193,24 +193,6 @@ async function prepareRop(p) {
     chain.push(libSceLibcInternalBase.add32(OFFSET_lc_setjmp));
   }
 
-  let marker = "*";
-
-  if (type === "error") {
-    marker = "-";
-    line.style.color = "#ff5a5a";
-  }
-  else if (type === "info") {
-    marker = "+";
-    line.style.color = "#dcdcdc";
-  }
-  else if (type === "success") {
-    marker = "+";
-    line.style.color = "#35d07f";
-  }
-  else {
-    line.style.color = "#dcdcdc";
-  }
-
   async function launchChain(chain) {
     const originalStackPointer = p.read8(stackPointerSlot);
     chain.push_write8(originalContext, originalReturnAddress);
