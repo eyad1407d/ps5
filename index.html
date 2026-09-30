@@ -254,14 +254,23 @@ backdrop-filter: blur(2px);
   /* ===== الشريط السفلي (Loading) ===== */
   .footer {
     flex: 0 0 auto;
-    border: 1px solid rgba(180,140,40,.45);
+
+    width: 85%;
+    margin: 0 auto;
+
+    border: 2px solid #c1121f;
     border-radius: 12px;
+
     background: rgba(15,15,18,.22);
-backdrop-filter: blur(2px);
--webkit-backdrop-filter: blur(2px);
+
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+
     padding: 8px 14px 12px;
-    box-shadow: inset 0 0 20px rgba(0,0,0,.5);
-  }
+
+    box-shadow:
+        inset 0 0 20px rgba(0,0,0,.5);
+}
   .footer .loading-text {
     text-align: center;
     color: #f4c842;
@@ -274,7 +283,7 @@ backdrop-filter: blur(2px);
   .footer .bottom-progress {
     position: relative;
     width: calc(100% - 18px);
-    height: 14px;
+    height: 20px;
     margin: 6px auto 8px;
 
     background: rgba(255,255,255,0.08);
@@ -497,27 +506,6 @@ window.updateProgress = function(percent){
       `${m ? m[0].trim() : 'P2JB Injection'} (${p}%)`;
   }
 };
-
-/* ============ writeLog — بالوسيط الثالث ============ */
-window.writeLog = function(message, type = 'log', progress = null){
-  const out = document.getElementById('consoleOut');
-  if (out){
-    const line = document.createElement('div');
-    line.textContent = message;
-    if (type === 'error')        line.classList.add('err');
-    else if (type === 'success') line.classList.add('green');
-    else if (type === 'dim')     line.classList.add('dim');
-    out.appendChild(line);
-    out.scrollTop = out.scrollHeight;
-  }
-  if (progress !== null) window.updateProgress(progress);
-};
-
-/* ============ تهيئة أولية — صفوف الصورة ============ */
-window.updateProgress(0);
-window.writeLog('PS5 Y2JB Autoloader Edit By EYAD', 'log');
-window.writeLog('Running Y2JB Exploit...', 'log');
-window.writeLog('Starting Exploit', 'log');
 </script>
 
 <!-- سكربتاتك الأصلية -->
