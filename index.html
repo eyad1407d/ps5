@@ -380,12 +380,8 @@ backdrop-filter: blur(2px);
   <div class="value" id="ipValue">------</div>
 </div>
       <div class="card alert">
-        <div class="label">PERCENT</div>
-        <div class="value" id="percentText">Remaining: --:-- (0%)</div>
-      </div>
-      <div class="card alert">
         <div class="label">JBSTATUS</div>
-        <div class="value" id="jbStatus">P2JB Injection (0%)</div>
+        <div class="value" id="jbStatus">JB Injection (0%)</div>
       </div>
     </div>
 
@@ -485,16 +481,6 @@ window.updateProgress = function(percent){
 
   if (bottomText)
     bottomText.textContent = p + '%';
-
-  // ===== بطاقة PERCENT =====
-  const pct = document.getElementById('percentText');
-
-  if (pct){
-    const m = pct.textContent.match(/Remaining:\s*[^)]+/);
-
-    pct.textContent =
-      `${m ? m[0] : 'Remaining: --:--'} (${p}%)`;
-  }
 
   // ===== بطاقة JBSTATUS =====
   const jb = document.getElementById('jbStatus');
