@@ -7,52 +7,6 @@ function countFingerprints(p, stack, expected) {
   return count;
 }
 
-function get_current_ip() {
-    // Get interface count
-    const count = Number(syscall(SYSCALL.netgetiflist, 0n, 10n));
-    if (count < 0) {
-        return null;
-    }
-    
-    // Allocate buffer for interfaces
-    const iface_size = 0x1e0;
-    const iface_buf = malloc(iface_size * count);
-    
-    // Get interface list
-    if (Number(syscall(SYSCALL.netgetiflist, iface_buf, BigInt(count))) < 0) {
-        return null;
-    }
-    
-    // Parse interfaces
-    for (let i = 0; i < count; i++) {
-        const offset = BigInt(i * iface_size);
-        
-        // Read interface name (null-terminated string at offset 0)
-        let iface_name = "";
-        for (let j = 0; j < 16; j++) {
-            const c = Number(read8(iface_buf + offset + BigInt(j)));
-            if (c === 0) break;
-            iface_name += String.fromCharCode(c);
-        }
-        
-        // Read IP address (4 bytes at offset 0x28)
-        const ip_offset = offset + 0x28n;
-        const ip1 = Number(read8(iface_buf + ip_offset));
-        const ip2 = Number(read8(iface_buf + ip_offset + 1n));
-        const ip3 = Number(read8(iface_buf + ip_offset + 2n));
-        const ip4 = Number(read8(iface_buf + ip_offset + 3n));
-        const iface_ip = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
-        
-        // Check if this is eth0 or wlan0 with valid IP
-        if ((iface_name === "eth0" || iface_name === "wlan0") && 
-            iface_ip !== "0.0.0.0" && iface_ip !== "127.0.0.1") {
-            return iface_ip;
-        }
-    }
-    
-    return null;
-}
-
 async function findWorkerStack(p, libKernelBase) {
   const PTHREAD_NEXT_THREAD_OFFSET = 0x38;
   const PTHREAD_STACK_ADDR_OFFSET = 0xa8;
