@@ -165,59 +165,34 @@ function get_current_ip() {
 }
 
 function isJailbroken() {
-  const cur_uid = syscall(SYSCALL.getuid);
-  const is_in_sandbox = syscall(SYSCALL.is_in_sandbox);
+  writeLog("JB: checking syscall environment...", "info");
 
-  if (cur_uid === 0n && is_in_sandbox === 0n) {
-    return true;
-  }
-
-  // Check whether elfldr is listening on 9021
-  const sockaddr_in = malloc(16);
-  const enable = malloc(4);
-
-  const sock_fd = syscall(
-    SYSCALL.socket,
-    AF_INET,
-    SOCK_STREAM,
-    0n
+  writeLog(
+    `JB: syscall = ${typeof syscall}`,
+    "info"
   );
 
-  if (sock_fd === 0xffffffffffffffffn) {
-    return false;
-  }
+  writeLog(
+    `JB: SYSCALL = ${typeof SYSCALL}`,
+    "info"
+  );
 
-  try {
-    write32(enable, 1);
+  writeLog(
+    `JB: malloc = ${typeof malloc}`,
+    "info"
+  );
 
-    syscall(
-      SYSCALL.setsockopt,
-      sock_fd,
-      SOL_SOCKET,
-      SO_REUSEADDR,
-      enable,
-      4n
-    );
+  writeLog(
+    `JB: write8 = ${typeof write8}`,
+    "info"
+  );
 
-    write8(sockaddr_in + 1n, AF_INET);
-    write16(sockaddr_in + 2n, 0x3D23n); // 9021
-    write32(sockaddr_in + 4n, 0x0100007Fn); // 127.0.0.1
+  writeLog(
+    `JB: write32 = ${typeof write32}`,
+    "info"
+  );
 
-    const ret = syscall(
-      SYSCALL.connect,
-      sock_fd,
-      sockaddr_in,
-      16n
-    );
-
-    syscall(SYSCALL.close, sock_fd);
-
-    return ret === 0n;
-
-  } catch (e) {
-    syscall(SYSCALL.close, sock_fd);
-    return false;
-  }
+  return false;
 }
 
 function getWebKitBase() {
