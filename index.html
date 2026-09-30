@@ -127,12 +127,13 @@ backdrop-filter: blur(2px);
     color: #f4c842;
     font-weight: 700;
     letter-spacing: 1.5px;
-    font-size: clamp(9px, .85vw, 13px);
+    font-size: clamp(20px, .85vw, 13px);
   }
   .card .value {
     color: #eaeaea;
     margin-top: 3px;
     letter-spacing: .5px;
+    font-size: clamp(18px, .85vw, 13px);
   }
   .card.alert .value {
     color: #ff3b3b;
@@ -437,6 +438,7 @@ function colorAt(percent){
 
 /* ============ الدالة الأساسية ============ */
 window.updateProgress = function(percent){
+
   percent = Number(percent);
 
   if (!Number.isFinite(percent))
@@ -482,14 +484,26 @@ window.updateProgress = function(percent){
   if (bottomText)
     bottomText.textContent = p + '%';
 
-  // ===== بطاقة JBSTATUS =====
+  // ===== JBSTATUS =====
   const jb = document.getElementById('jbStatus');
 
-  if (jb){
+  if (jb) {
+
     const m = jb.textContent.match(/^[^(]+/);
 
     jb.textContent =
       `${m ? m[0].trim() : 'P2JB Injection'} (${p}%)`;
+
+    // نفس لون شريط التقدم
+    jb.style.color = color;
+
+    // نفس تأثير الإضاءة
+    jb.style.textShadow =
+      `0 0 8px ${color}, 0 0 14px ${color}`;
+
+    // انتقال ناعم
+    jb.style.transition =
+      'color .35s ease, text-shadow .35s ease';
   }
 };
 </script>
