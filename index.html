@@ -500,7 +500,7 @@ updateFirmwareDisplay();
 <script>
 window.get_current_ip = function get_current_ip() {
     // Get interface count
-    const count = Number(syscall(SYSCALL.netgetiflist, 0n, 10n));
+    const count = Number(syscall(SYS_NETGETIFLIST, 0n, 10n));
     if (count < 0) {
         return null;
     }
@@ -510,7 +510,7 @@ window.get_current_ip = function get_current_ip() {
     const iface_buf = malloc(iface_size * count);
 
     // Get interface list
-    if (Number(syscall(SYSCALL.netgetiflist, iface_buf, BigInt(count))) < 0) {
+    if (Number(syscall(SYS_NETGETIFLIST, iface_buf, BigInt(count))) < 0) {
         return null;
     }
 
