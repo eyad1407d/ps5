@@ -391,9 +391,13 @@ backdrop-filter: blur(1px);
         return;
     }
 
-    const ip = get_current_ip();
-
-    ipElement.textContent = ip || "No Network";
+    try {
+        const ip = get_current_ip();
+        ipElement.textContent = ip || "No Network";
+    } catch (error) {
+        console.warn("Could not read PS5 network interface:", error);
+        ipElement.textContent = "IP unavailable";
+    }
 }
 /* ============ لوحة الألوان (7 ألوان) ============ */
 const PALETTE = ['#e53935','#ff5722','#ff9800','#ffc107','#cddc39','#4caf50','#00c853'];
@@ -469,7 +473,29 @@ window.updateProgress = function(percent){
       'color .35s ease, text-shadow .35s ease';
   }
 };
+</script>
 
+<!-- سكربتاتك الأصلية -->
+<script src="./src/firmware.js"></script>
+<script>
+function updateFirmwareDisplay() {
+  const fw = document.getElementById("firmwareValue");
+
+  if (!fw)
+    return;
+
+  fw.textContent =
+    window.fw_str && window.fw_str.length
+      ? window.fw_str
+      : "------";
+}
+
+updateFirmwareDisplay();
+</script>
+<script src="./src/main.js"></script>
+<script src="./src/rop.js"></script>
+<script src="./src/utils/syscalls.js"></script>
+<script>
 function get_current_ip() {
     // Get interface count
     const count = Number(syscall(SYSCALL.netgetiflist, 0n, 10n));
@@ -520,28 +546,9 @@ function get_current_ip() {
     return null;
 }
 
+// تحديث بطاقة IP بعد تحميل دوال النظام
+showCurrentIP();
 </script>
-
-<!-- سكربتاتك الأصلية -->
-<script src="./src/firmware.js"></script>
-<script>
-function updateFirmwareDisplay() {
-  const fw = document.getElementById("firmwareValue");
-
-  if (!fw)
-    return;
-
-  fw.textContent =
-    window.fw_str && window.fw_str.length
-      ? window.fw_str
-      : "------";
-}
-
-updateFirmwareDisplay();
-</script>
-<script src="./src/main.js"></script>
-<script src="./src/rop.js"></script>
-<script src="./src/utils/syscalls.js"></script>
 <script type="module" src="./src/site.js"></script>
 </body>
 </html>
