@@ -382,23 +382,25 @@ backdrop-filter: blur(1px);
      دوال الشريط + writeLog  —  قبل باقي السكربتات
      ============================================================ -->
 <script>
-  function showCurrentIP() {
-    const ipElement = document.getElementById("ipValue");
-    if (!ipElement) return;
+  window.showCurrentIP = function showCurrentIP() {
+  const ipElement = document.getElementById("ipValue");
+  if (!ipElement) return false;
 
-    if (typeof get_current_ip !== "function") {
-        ipElement.textContent = "------";
-        return;
-    }
+  if (typeof window.get_current_ip !== "function") {
+    ipElement.textContent = "Waiting for IP function...";
+    return false;
+  }
 
-    try {
-        const ip = get_current_ip();
-        ipElement.textContent = ip || "No Network";
-    } catch (error) {
-        console.warn("Could not read PS5 network interface:", error);
-        ipElement.textContent = "IP unavailable";
-    }
-}
+  try {
+    const ip = window.get_current_ip();
+    ipElement.textContent = ip || "No Network";
+    return Boolean(ip);
+  } catch (error) {
+    console.error("[IP] get_current_ip failed:", error);
+    ipElement.textContent = "IP error";
+    return false;
+  }
+};
 /* ============ لوحة الألوان (7 ألوان) ============ */
 const PALETTE = ['#e53935','#ff5722','#ff9800','#ffc107','#cddc39','#4caf50','#00c853'];
 
@@ -496,7 +498,7 @@ updateFirmwareDisplay();
 <script src="./src/rop.js"></script>
 <script src="./src/utils/syscalls.js"></script>
 <script>
-function get_current_ip() {
+window.get_current_ip = function get_current_ip() {
     // Get interface count
     const count = Number(syscall(SYSCALL.netgetiflist, 0n, 10n));
     if (count < 0) {
@@ -544,10 +546,32 @@ function get_current_ip() {
     }
 
     return null;
-}
+};
+
+// جرّب عرض IP بعد تحميل الاعتماديات؛ أعد المحاولة إذا كانت تهيئتها متأخرة.
+(function initIPDisplay() {
+  let attempts = 0;
+  const maxAttempts = 40;
+
+  function attempt() {
+    attempts++;
+    const ok = window.showCurrentIP && window.showCurrentIP();
+    if (ok || attempts >= maxAttempts) return;
+    setTimeout(attempt, 500);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", attempt, { once: true });
+  } else {
+    attempt();
+  }
+})();
+</script>
+<script>
+
 
 // تحديث بطاقة IP بعد تحميل دوال النظام
-showCurrentIP();
+
 </script>
 <script type="module" src="./src/site.js"></script>
 </body>
