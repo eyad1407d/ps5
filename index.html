@@ -522,35 +522,51 @@ function get_current_ip() {
 }
 
 
+
 function showCurrentIP() {
     const ipElement = document.getElementById("ipValue");
     if (!ipElement) return;
 
     try {
         if (typeof get_current_ip !== "function") {
-            ipElement.textContent = "Unavailable";
+            ipElement.textContent = "Function Missing";
+            return;
+        }
+
+        if (typeof syscall !== "function") {
+            ipElement.textContent = "syscall Missing";
+            return;
+        }
+
+        if (typeof SYSCALL === "undefined" ||
+            SYSCALL.netgetiflist === undefined) {
+            ipElement.textContent = "Syscall Missing";
             return;
         }
 
         const ip = get_current_ip();
 
-        const validIPv4 =
-            typeof ip === "string" &&
-            ip.split(".").length === 4 &&
-            ip.split(".").every(part =>
-                /^\d{1,3}$/.test(part) &&
-                Number(part) >= 0 &&
-                Number(part) <= 255
-            );
-
         ipElement.textContent =
-            validIPv4 && ip !== "0.0.0.0"
-                ? ip
-                : "No Network";
+            ip === null || ip === undefined
+                ? "No Network"
+                : String(ip);
 
     } catch (error) {
-        console.error("IP detection failed:", error);
-        ipElement.textContent = "Unavailable";
+        const message = error?.message || String(error);
+
+        ipElement.textContent = "IP Error";
+
+        console.error("[IP Detection Error]", error);
+
+        const consoleElement =
+            document.getElementById("console");
+
+        if (consoleElement) {
+            const line = document.createElement("div");
+            line.style.color = "#ff5a5a";
+            line.textContent = "[IP ERROR] " + message;
+            consoleElement.appendChild(line);
+        }
     }
 }
 
