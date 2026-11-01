@@ -259,49 +259,92 @@ async function prepareRop(p) {
   return { p: runtime, chain };
 }
 
+
 async function main(userlandRW) {
   const { p, chain } = await prepareRop(userlandRW);
   const { runKernelExploit } = await import("./relapse_exploit.js");
   const result = await runKernelExploit(p, chain, log);
+
   if (!result || !result.done)
     throw new Error("kernel exploit did not finish");
+
+  // Keep the ROP context available for the manual button.
+  window.nasPayloadManagerContext = { p, chain };
 
   if (result.payloads) {
     log("kernel exploit complete", "info", 100);
     log("elfldr is listening on port 9021", "info");
     log("Payload Manager Wait 5 Seconds.", "info");
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-        const { loadOptionalPayloads } = await import("./kexp.js");
-        await loadOptionalPayloads(
-  p,
-  chain,
-  (message, type = "info", progress = null) =>
-    log(message, type, progress)
-);
-      } catch (error) {
-        log(error instanceof Error ? error.message : String(error), "error");
-      }
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
+      const { loadOptionalPayloads } = await import("./kexp.js");
+      await loadOptionalPayloads(
+        p,
+        chain,
+        (message, type = "info", progress = null) =>
+          log(message, type, progress)
+      );
+    } catch (error) {
+      log(error instanceof Error ? error.message : String(error), "error");
+    }
 
   } else {
     log("Your Console Is Already Jailbroken!", "success", 100);
 
     const jbStatus = document.getElementById("jbStatus");
     if (jbStatus) {
-        jbStatus.textContent = "Already Jailbroken";
+      jbStatus.textContent = "Already Jailbroken";
     }
 
-    log("Re Run Payload Manager Wait 5 Seconds.", "info");
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-        const { loadOptionalPayloads } = await import("./kexp.js");
-        await loadOptionalPayloads(
-  p,
-  chain,
-  (message, type = "info", progress = null) =>
-    log(message, type, progress)
-);
+    const card = document.getElementById("rerunPayloadManagerCard");
+    if (card) {
+      card.style.display = "block";
+    }
+
+    const button = document.getElementById("rerunPayloadManagerButton");
+    if (button) {
+      button.disabled = false;
+    }
   }
 }
+
+// Manual Payload Manager runner
+
+window.rerunPayloadManager = async function () {
+  const context = window.nasPayloadManagerContext;
+
+  if (!context) {
+    log("Payload Manager context is not available.", "error");
+    return;
+  }
+
+  const button = document.getElementById("rerunPayloadManagerButton");
+
+  if (button) {
+    button.disabled = true;
+  }
+
+  try {
+    log("Starting Payload Manager...", "info");
+
+    const { loadOptionalPayloads } = await import("./kexp.js");
+
+    await loadOptionalPayloads(
+      context.p,
+      context.chain,
+      (message, type = "info", progress = null) =>
+        log(message, type, progress)
+    );
+  } catch (error) {
+    log(error instanceof Error ? error.message : String(error), "error");
+  } finally {
+    if (button) {
+      button.disabled = false;
+    }
+  }
+};
 
 const fwScript = document.createElement("script");
 document.body.appendChild(fwScript);

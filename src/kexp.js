@@ -155,9 +155,9 @@ async function sendElf(name, payload, p, chain) {
 
 export async function loadOptionalPayloads(p, chain, log) {
   log("preparing optional payloads");
-  const pldmgr = await mapElf("pldmgr_v0.5.2.elf", p, chain);
-  await sendElf("pldmgr_v0.5.2.elf", pldmgr, p, chain);
-  log("Payload Manager 0.5.2 Sent");
+  const pldmgr = await mapElf("pldmgr.elf", p, chain);
+  await sendElf("pldmgr.elf", pldmgr, p, chain);
+  log("Payload Manager Done Sent");
 }
 
 function patchShellcode(blob, symbols) {
